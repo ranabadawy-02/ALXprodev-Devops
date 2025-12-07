@@ -1,0 +1,30 @@
+#!/bin/bash
+
+# Task 2 — Batch Pokémon Data Retrieval
+
+POKEMON_LIST=("bulbasaur" "ivysaur" "venusaur" "charmander" "charmeleon")
+OUTPUT_DIR="pokemon_data"
+
+# Create output directory if not existing
+mkdir -p "$OUTPUT_DIR"
+
+for pokemon in "${POKEMON_LIST[@]}"; do
+    echo "Fetching data for $pokemon..."
+
+    API_URL="https://pokeapi.co/api/v2/pokemon/$pokemon"
+    OUTPUT_FILE="$OUTPUT_DIR/${pokemon}.json"
+
+    # Make API request
+    response=$(curl -s -w "%{http_code}" "$API_URL" -o "$OUTPUT_FILE")
+    http_code="$response"
+
+    # Check for success
+    if [ "$http_code" -eq 200 ]; then
+        echo "Saved data to $OUTPUT_FILE ✅"
+    else
+        echo "Failed to fetch $pokemon (HTTP $http_code)" >> errors.txt
+    fi
+
+    # Prevent rate limit — small delay
+    sleep 1
+done
