@@ -1,0 +1,22 @@
+#!/bin/bash
+
+# Task 1 — Extract Pokémon Data
+# Using jq, awk, and sed only
+
+JSON_FILE="data.json"
+
+# Extract fields using jq
+name=$(jq -r '.name' "$JSON_FILE" | sed 's/.*/\u&/')   # Capitalize first letter
+height=$(jq -r '.height' "$JSON_FILE")
+weight=$(jq -r '.weight' "$JSON_FILE")
+type=$(jq -r '.types[0].type.name' "$JSON_FILE" | sed 's/.*/\u&/')  # Capitalize
+
+# Pokémon API gives:
+# height in decimeters (dm) → convert to meters (m) = value / 10
+# weight in hectograms (hg) → convert to kg = value / 10
+
+height_m=$(awk -v h="$height" 'BEGIN { printf "%.1f", h/10 }')
+weight_kg=$(awk -v w="$weight" 'BEGIN { printf "%.0f", w/10 }')
+
+# Final readable output
+echo "$name is of type $type, weighs ${weight_kg}kg, and is ${height_m}m tall."
